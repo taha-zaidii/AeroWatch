@@ -1,0 +1,364 @@
+/* ========== Animations ========== */
+
+/* Keyframes */
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slide-right {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(163,197,133,0.18); }
+  50% { box-shadow: 0 0 0 9px rgba(163,197,133,0.05); }
+}
+@keyframes drift {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-4px) rotate(0.4deg); }
+}
+@keyframes orbit-spin {
+  from { transform: translate(-50%, -50%) rotate(0); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes bg-shift {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+  50% { transform: translate(-48%, -52%) scale(1.05); opacity: 1; }
+}
+@keyframes ping {
+  0% { transform: scale(0.8); opacity: 0.9; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes scan-line {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+@keyframes count-up {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes ring-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(163,197,133,0.5); }
+  100% { box-shadow: 0 0 0 16px rgba(163,197,133,0); }
+}
+
+/* Page entrance — DISABLED: caused stuck-at-opacity-0 bugs in iframe */
+.main > * {
+  /* animation: fade-up 380ms cubic-bezier(.2,.8,.2,1) both; */
+}
+.page-header { animation-delay: 0ms; }
+.tele-row    { animation-delay: 60ms; }
+.dash-grid   { animation-delay: 120ms; }
+.control-grid{ animation-delay: 80ms; }
+.wf-grid     { animation-delay: 80ms; }
+.eval-table  { animation-delay: 80ms; }
+.principle-grid { animation-delay: 140ms; }
+.wind-hero   { animation-delay: 60ms; }
+
+/* Stagger inside grids */
+.tele-row .tele:nth-child(1) { animation: fade-up 420ms cubic-bezier(.2,.8,.2,1) 80ms both; }
+.tele-row .tele:nth-child(2) { animation: fade-up 420ms cubic-bezier(.2,.8,.2,1) 140ms both; }
+.tele-row .tele:nth-child(3) { animation: fade-up 420ms cubic-bezier(.2,.8,.2,1) 200ms both; }
+.tele-row .tele:nth-child(4) { animation: fade-up 420ms cubic-bezier(.2,.8,.2,1) 260ms both; }
+
+.dash-grid > *:nth-child(1) { animation: slide-right 480ms cubic-bezier(.2,.8,.2,1) 200ms both; }
+.dash-grid > *:nth-child(2) { animation: scale-in   480ms cubic-bezier(.2,.8,.2,1) 260ms both; }
+.dash-grid > *:nth-child(3) { animation: fade-up    480ms cubic-bezier(.2,.8,.2,1) 320ms both; }
+
+.principle-grid .principle {
+  animation: fade-up 460ms cubic-bezier(.2,.8,.2,1) both;
+}
+.principle-grid .principle:nth-child(1) { animation-delay: 140ms; }
+.principle-grid .principle:nth-child(2) { animation-delay: 200ms; }
+.principle-grid .principle:nth-child(3) { animation-delay: 260ms; }
+.principle-grid .principle:nth-child(4) { animation-delay: 320ms; }
+.principle-grid .principle:nth-child(5) { animation-delay: 380ms; }
+.principle-grid .principle:nth-child(6) { animation-delay: 440ms; }
+.principle-grid .principle:nth-child(7) { animation-delay: 500ms; }
+.principle-grid .principle:nth-child(8) { animation-delay: 560ms; }
+.principle-grid .principle:nth-child(9) { animation-delay: 620ms; }
+
+.wf-grid .wf-card { animation: fade-up 500ms cubic-bezier(.2,.8,.2,1) both; }
+.wf-grid .wf-card:nth-child(1) { animation-delay: 100ms; }
+.wf-grid .wf-card:nth-child(2) { animation-delay: 170ms; }
+.wf-grid .wf-card:nth-child(3) { animation-delay: 240ms; }
+.wf-grid .wf-card:nth-child(4) { animation-delay: 310ms; }
+.wf-grid .wf-card:nth-child(5) { animation-delay: 380ms; }
+.wf-grid .wf-card:nth-child(6) { animation-delay: 450ms; }
+
+.flight-row:not(.head) {
+  animation: slide-right 380ms cubic-bezier(.2,.8,.2,1) both;
+}
+.flight-row:nth-child(2) { animation-delay: 120ms; }
+.flight-row:nth-child(3) { animation-delay: 170ms; }
+.flight-row:nth-child(4) { animation-delay: 220ms; }
+.flight-row:nth-child(5) { animation-delay: 270ms; }
+.flight-row:nth-child(6) { animation-delay: 320ms; }
+.flight-row:nth-child(7) { animation-delay: 370ms; }
+.flight-row:nth-child(8) { animation-delay: 420ms; }
+
+.alert-row {
+  animation: fade-up 360ms cubic-bezier(.2,.8,.2,1) both;
+}
+.alert-row:nth-child(1) { animation-delay: 80ms; }
+.alert-row:nth-child(2) { animation-delay: 140ms; }
+.alert-row:nth-child(3) { animation-delay: 200ms; }
+.alert-row:nth-child(4) { animation-delay: 260ms; }
+
+/* Sidebar slide-in */
+.sidebar { animation: slide-right 500ms cubic-bezier(.2,.8,.2,1) both; }
+.topbar  { animation: fade-down 380ms cubic-bezier(.2,.8,.2,1) both; }
+.nav-item { transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease; }
+.nav-item:hover { transform: translateX(2px); }
+.nav-item.active::before {
+  animation: scale-in 360ms cubic-bezier(.4,.2,.2,1) both;
+}
+
+/* Login animations */
+.login-card { animation: scale-in 600ms cubic-bezier(.2,.8,.2,1) both; }
+.login-side { animation: fade-up 700ms cubic-bezier(.2,.8,.2,1) 200ms both; }
+.bg-orbit   { animation: drift 14s ease-in-out infinite; }
+.bg-orbit.b { animation-duration: 18s; animation-direction: reverse; }
+.bg-orbit.c { animation-duration: 22s; }
+.brand-mark { animation: fade-up 500ms cubic-bezier(.2,.8,.2,1) both; }
+
+/* Card hover lift */
+.card {
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1), border-color 220ms ease, box-shadow 220ms ease;
+}
+.card:hover {
+  border-color: var(--border-strong);
+}
+
+/* Telemetry tile hover */
+.tele {
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1), border-color 220ms ease;
+}
+.tele:hover {
+  transform: translateY(-2px);
+  border-color: rgba(163,197,133,0.3);
+}
+.tele-bar i {
+  transition: width 600ms cubic-bezier(.2,.8,.2,1);
+}
+.tele-v {
+  display: inline-flex; align-items: baseline;
+}
+
+/* Live tick subtle pulse on changing values */
+@keyframes value-tick {
+  0% { color: var(--accent); }
+  100% { color: var(--text); }
+}
+.tele-v.tick { animation: value-tick 800ms ease-out; }
+
+/* Buttons */
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease, box-shadow 200ms ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn.primary:hover {
+  box-shadow: 0 6px 20px rgba(163,197,133,0.35);
+}
+.btn.danger:hover {
+  box-shadow: 0 6px 20px rgba(217,102,102,0.4);
+}
+
+/* Icon button — gentle rotation on hover for some icons */
+.icon-btn {
+  transition: transform 200ms cubic-bezier(.2,.8,.2,1), color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+.icon-btn:hover { transform: scale(1.06); }
+.icon-btn:active { transform: scale(0.96); }
+
+/* Pills — slight shimmer on info/ok */
+.pill.info, .pill.ok {
+  position: relative;
+  overflow: hidden;
+}
+.pill.info::after, .pill.ok::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.08) 50%,
+    transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Cmd buttons — interactive lift */
+.cmd-btn {
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1), border-color 220ms ease, background 220ms ease, box-shadow 220ms ease;
+}
+.cmd-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+.cmd-btn:active { transform: translateY(-1px); }
+.cmd-btn .cmd-icon {
+  transition: transform 260ms cubic-bezier(.4,.2,.2,1);
+}
+.cmd-btn:hover .cmd-icon {
+  transform: scale(1.1) rotate(-3deg);
+}
+.cmd-btn.danger:hover .cmd-icon {
+  animation: shake 360ms ease-in-out;
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0) scale(1.1); }
+  25% { transform: translateX(-2px) scale(1.1); }
+  75% { transform: translateX(2px) scale(1.1); }
+}
+
+/* Joystick knob */
+.joystick .knob {
+  transition: transform 200ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms ease;
+  animation: drift 3.5s ease-in-out infinite;
+}
+.joystick .knob:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 30px rgba(163,197,133,0.45), inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.joystick .knob:active { cursor: grabbing; transform: scale(0.96); }
+
+/* UAV pin float */
+.uav-pin {
+  animation: pingPin 2.4s ease-out infinite, drift 5s ease-in-out infinite;
+}
+
+/* Map flight path — animated dash */
+.map-path path[stroke-dasharray] {
+  stroke-dashoffset: 0;
+  animation: dash-flow 3.5s linear infinite;
+}
+@keyframes dash-flow {
+  to { stroke-dashoffset: -20; }
+}
+
+/* Sparkline draw */
+.spark-poly {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw 1400ms cubic-bezier(.2,.8,.2,1) forwards;
+}
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Bar chart rise */
+.bar-chart .bar {
+  transform-origin: bottom;
+  animation: bar-rise 700ms cubic-bezier(.2,.8,.2,1) both;
+}
+.bar-chart .bar:nth-child(1) { animation-delay: 100ms; }
+.bar-chart .bar:nth-child(2) { animation-delay: 160ms; }
+.bar-chart .bar:nth-child(3) { animation-delay: 220ms; }
+.bar-chart .bar:nth-child(4) { animation-delay: 280ms; }
+.bar-chart .bar:nth-child(5) { animation-delay: 340ms; }
+.bar-chart .bar:nth-child(6) { animation-delay: 400ms; }
+.bar-chart .bar:nth-child(7) { animation-delay: 460ms; }
+@keyframes bar-rise {
+  from { transform: scaleY(0); opacity: 0; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+/* Wind rose arrow rotates smoothly */
+.wind-rose .arrow {
+  transition: transform 1.6s cubic-bezier(.4,.2,.2,1);
+}
+.wind-rose {
+  animation: scale-in 600ms cubic-bezier(.2,.8,.2,1) both;
+}
+.wind-rose::before { animation: ring-pulse 2.4s ease-out infinite; }
+
+/* Threshold bar fill */
+.threshold-bar .fill {
+  transition: width 800ms cubic-bezier(.2,.8,.2,1);
+}
+.threshold-bar .marker {
+  transition: left 800ms cubic-bezier(.2,.8,.2,1);
+}
+
+/* Toasts */
+.toast {
+  animation: toast-in 320ms cubic-bezier(.2,.8,.2,1);
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(28px) scale(0.96); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* Modal */
+.modal { animation: modal-in 280ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-backdrop { animation: fade-in 200ms ease both; }
+
+/* Status dot pulse — already exists, enhanced */
+.dot.ok    { animation: dot-pulse 2s ease-in-out infinite; }
+.dot.warn  { animation: dot-pulse 1.5s ease-in-out infinite; }
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Camera REC blinking */
+@keyframes rec-blink {
+  0%, 60% { opacity: 1; }
+  80%, 100% { opacity: 0.3; }
+}
+.pill.danger .icon[stroke], .pill.danger svg { animation: rec-blink 1.6s ease-in-out infinite; }
+
+/* Scan line for camera feed */
+.cam-feed-scan {
+  position: absolute; left: 0; right: 0;
+  height: 30%;
+  background: linear-gradient(180deg, transparent, rgba(163,197,133,0.08) 50%, transparent);
+  pointer-events: none;
+  animation: scan-line 4s linear infinite;
+}
+
+/* Brand mark gentle hover */
+.brand-mark {
+  transition: transform 400ms cubic-bezier(.2,.8,.2,1);
+}
+.brand:hover .brand-mark {
+  transform: rotate(8deg) scale(1.05);
+}
+
+/* Demo mode tooltip enter */
+@keyframes demo-tip-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
