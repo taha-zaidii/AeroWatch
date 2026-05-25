@@ -98,9 +98,9 @@ function CloudArt() {
     <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" style={{ position:'absolute', inset:0, width:'100%', height:'100%' }}>
       <defs>
         <linearGradient id="sky-light" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#dbe7e8"/><stop offset="60%" stopColor="#e9efe5"/><stop offset="100%" stopColor="#f4f7f2"/></linearGradient>
-        <radialGradient id="sun" cx="22%" cy="20%" r="40%"><stop offset="0%" stopColor="rgba(255,228,166,0.6)"/><stop offset="100%" stopColor="rgba(255,228,166,0)"/></radialGradient>
+        <radialGradient id="sun" cx="92%" cy="14%" r="34%"><stop offset="0%" stopColor="rgba(255,228,166,0.55)"/><stop offset="100%" stopColor="rgba(255,228,166,0)"/></radialGradient>
         <linearGradient id="sky-dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#08101c"/><stop offset="55%" stopColor="#0e1822"/><stop offset="100%" stopColor="#131e2a"/></linearGradient>
-        <radialGradient id="moonglow" cx="22%" cy="22%" r="30%"><stop offset="0%" stopColor="rgba(180,200,230,0.18)"/><stop offset="100%" stopColor="rgba(180,200,230,0)"/></radialGradient>
+        <radialGradient id="moonglow" cx="92%" cy="14%" r="26%"><stop offset="0%" stopColor="rgba(180,200,230,0.22)"/><stop offset="100%" stopColor="rgba(180,200,230,0)"/></radialGradient>
         <radialGradient id="moon" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#f0e8d0"/><stop offset="80%" stopColor="#d8cfb5"/><stop offset="100%" stopColor="#b8af95"/></radialGradient>
       </defs>
       <g className="sky-light">
@@ -115,9 +115,9 @@ function CloudArt() {
       <g className="sky-dark">
         <rect width="1600" height="1000" fill="url(#sky-dark)"/>
         <rect width="1600" height="1000" fill="url(#moonglow)"/>
-        <circle cx="320" cy="180" r="56" fill="url(#moon)"/>
-        <circle cx="304" cy="170" r="7" fill="#9c9580" opacity="0.4"/>
-        <circle cx="336" cy="192" r="5" fill="#9c9580" opacity="0.4"/>
+        <circle cx="1470" cy="140" r="48" fill="url(#moon)"/>
+        <circle cx="1455" cy="130" r="6" fill="#9c9580" opacity="0.4"/>
+        <circle cx="1485" cy="152" r="5" fill="#9c9580" opacity="0.4"/>
         <Stars/>
         <path d="M0,720 L180,580 L320,640 L520,520 L740,600 L920,540 L1140,610 L1320,560 L1600,640 L1600,1000 L0,1000 Z" fill="#1a2536" opacity="0.85"/>
         <path d="M0,800 L240,700 L420,740 L620,660 L840,720 L1060,680 L1280,720 L1600,690 L1600,1000 L0,1000 Z" fill="#0f1828" opacity="0.95"/>

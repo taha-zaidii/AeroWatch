@@ -226,14 +226,13 @@ body { margin: 0; }
 .wx-login-content {
   position: relative; z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(380px, 440px);
-  gap: 64px;
+  grid-template-columns: minmax(0, 1.05fr) minmax(380px, 460px);
+  gap: clamp(40px, 6vw, 96px);
   align-items: center;
   justify-items: stretch;
-  max-width: 1180px;
   width: 100%;
   margin: 0 auto;
-  padding: 56px 40px;
+  padding: 56px clamp(28px, 6vw, 88px);
   flex: 1;
 }
 .wx-login-left { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
