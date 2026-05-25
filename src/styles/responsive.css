@@ -226,14 +226,25 @@ body { margin: 0; }
 .wx-login-content {
   position: relative; z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(380px, 460px);
-  gap: clamp(40px, 6vw, 96px);
+  grid-template-columns: minmax(0, 1fr) minmax(380px, 480px);
+  gap: clamp(32px, 5vw, 72px);
   align-items: center;
   justify-items: stretch;
   width: 100%;
   margin: 0 auto;
-  padding: 56px clamp(28px, 6vw, 88px);
+  /* left/right asymmetric: card hugs the right edge so there's no dead
+     SVG-sky bar between the card and the viewport. */
+  padding: 56px 0 56px clamp(28px, 6vw, 88px);
   flex: 1;
+}
+@media (min-width: 901px) {
+  /* Above the mobile breakpoint, the card hugs the right viewport
+     edge so there's no dead SVG-sky bar to its right. */
+  .wx-login-card {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: 0;
+  }
 }
 .wx-login-left { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
 .wx-login-brand { display: flex; align-items: center; gap: 14px; }
