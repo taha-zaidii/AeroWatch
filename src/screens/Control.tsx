@@ -43,7 +43,7 @@ export default function ControlPanel() {
               <span className="card-title">Primary commands</span>
               <span className="card-sub">Press keyboard shortcuts for quick access</span>
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:12 }}>
+            <div className="control-primary">
               <button className="cmd-btn ok" onClick={askArm}><span className="kbd-tip">A</span><div className="cmd-icon"><Icon name="power" size={20}/></div><div className="cmd-label">{armed ? 'Disarm motors' : 'Arm motors'}</div><div className="cmd-sub">{armed ? 'Currently armed' : 'Ready for takeoff'}</div></button>
               <button className="cmd-btn" onClick={() => pushToast({level:'info', title: telemetry.status==='IN-FLIGHT' ? 'Mission paused' : 'Mission resumed'})}><span className="kbd-tip">P</span><div className="cmd-icon"><Icon name={telemetry.status==='IN-FLIGHT' ? 'pause' : 'play'} size={20}/></div><div className="cmd-label">{telemetry.status==='IN-FLIGHT' ? 'Pause mission' : 'Resume mission'}</div><div className="cmd-sub">Hold position</div></button>
               <button className="cmd-btn warn" onClick={askRTH}><span className="kbd-tip">H</span><div className="cmd-icon"><Icon name="home" size={20}/></div><div className="cmd-label">Return to home</div><div className="cmd-sub">Auto-navigate to HOME</div></button>
@@ -52,7 +52,7 @@ export default function ControlPanel() {
           </div>
           <div className="card">
             <div className="card-h"><span className="card-title">Secondary controls</span></div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:12 }}>
+            <div className="control-secondary">
               <ToggleRow label="Recording" desc="4K · 30fps" active={recording} onChange={() => setRecording(v => !v)} icon="cam"/>
               <ToggleRow label="Auto-land on low battery" desc="Trigger at 18%" active={autoLand} onChange={() => setAutoLand(v => !v)} icon="battery"/>
               <ToggleRow label="Obstacle avoidance" desc="Stereo + LiDAR" active onChange={() => {}} icon="shield"/>

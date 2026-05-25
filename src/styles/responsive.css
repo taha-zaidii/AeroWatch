@@ -1,108 +1,54 @@
 /* ============================================================
- * responsive.css — App shell layout + adaptive breakpoints.
- * Loaded last so it overrides earlier rules where needed.
+ * responsive.css — App-shell layout + responsive breakpoints.
+ *
+ * Loaded LAST so it overrides the legacy index.css/screens.css.
+ *
+ * Layout strategy:
+ *   - .app-shell is a horizontal flex row.
+ *   - .sidebar takes a fixed 240px column on desktop.
+ *   - .main-col takes the rest of the row (flex: 1, min-width: 0).
+ *   - On viewports ≤ 900px the sidebar becomes a fixed drawer that
+ *     slides in from the left; a scrim sits behind it.
+ *
+ * Why flex, not grid: grid was over-engineered for this; collapsing
+ * to a single-column track on mobile via `grid-template-columns: 1fr`
+ * combined with an absolutely-positioned drawer kept producing
+ * width races where main-col was rendered narrow. Flex makes it
+ * impossible for main-col to be anything other than the full
+ * remaining width.
  * ============================================================ */
 
-/* ---------------------------------------------------------------
- * App shell — supplies the classes used in App.tsx that were
- * previously missing from the stylesheet (.app-shell, .main-col,
- * .page-scroll, .tele-card, .tele-icon, .tele-label, .tele-value,
- * .tele-unit). Replaces the legacy fixed-width .app grid.
- * --------------------------------------------------------------- */
+html, body, #root { width: 100%; max-width: 100%; min-width: 0; }
+html, body { overflow-x: hidden; }
+body { margin: 0; }
+#root { display: flex; min-height: 100vh; }
+
+/* ---------- App shell ---------- */
 .app-shell {
-  display: grid;
-  grid-template-columns: 240px 1fr;
+  display: flex;
+  flex: 1;
   min-height: 100vh;
   width: 100%;
+  min-width: 0;
 }
 
-.main-col {
+/* Override the legacy .app rule from index.css. */
+.app { display: contents; }
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  flex: 0 0 240px;
+  width: 240px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  min-width: 0;          /* let children shrink instead of overflowing */
-  background: var(--bg);
-}
-
-.page-scroll {
-  flex: 1 1 auto;
+  padding: 18px 12px;
+  gap: 4px;
   overflow-y: auto;
-  overflow-x: hidden;
-  padding: 22px 28px 48px;
-  min-width: 0;
+  z-index: 50;
 }
 
-/* Telemetry strip — visible on every post-login screen */
-.tele-row {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  padding: 10px 28px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-.tele-card {
-  position: relative;
-  display: grid;
-  grid-template-columns: 22px 1fr auto;
-  grid-template-rows: auto auto;
-  align-items: center;
-  column-gap: 10px;
-  row-gap: 2px;
-  padding: 8px 12px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  min-width: 0;
-}
-.tele-card .tele-icon {
-  grid-row: 1 / span 2;
-  width: 22px; height: 22px;
-  display: grid; place-items: center;
-  color: var(--accent);
-  background: var(--accent-faint);
-  border-radius: 6px;
-}
-.tele-card .tele-label {
-  font-size: 10.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-3);
-  white-space: nowrap;
-}
-.tele-card .tele-value {
-  font-family: var(--font-mono);
-  font-size: 18px;
-  color: var(--text);
-  white-space: nowrap;
-}
-.tele-card .tele-unit {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-3);
-  margin-left: 4px;
-}
-.tele-card.ok    .tele-icon { color: var(--ok);     background: var(--ok-faint); }
-.tele-card.warn  .tele-icon { color: var(--warn);   background: var(--warn-faint); }
-.tele-card.danger .tele-icon { color: var(--danger); background: var(--danger-faint); }
-
-/* The Dashboard renders <div className="flow-body">; the original
- * stylesheet defines .flow-text. Map the missing class. */
-.flow-body { flex: 1; min-width: 0; }
-.flow-body .flow-title { font-size: 13.5px; font-weight: 600; margin-bottom: 2px; }
-.flow-body .flow-text  { font-size: 12px; color: var(--text-2); line-height: 1.45; }
-
-/* ---------------------------------------------------------------
- * Hard reset of the legacy desktop-only lock that prevented
- * mobile rendering. The original index.css forced
- *    .app { min-width: 1280px; height: 100vh; }
- * which kicked horizontal scroll in on every phone.
- * --------------------------------------------------------------- */
-.app, .app-shell { min-width: 0 !important; }
-html, body { min-width: 0; max-width: 100vw; overflow-x: hidden; }
-
-/* ---------------------------------------------------------------
- * Mobile sidebar drawer
- * --------------------------------------------------------------- */
 .sidebar-scrim {
   position: fixed; inset: 0;
   background: rgba(8, 12, 18, 0.55);
@@ -115,6 +61,82 @@ html, body { min-width: 0; max-width: 100vw; overflow-x: hidden; }
 .sidebar-scrim.open {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* ---------- Main column ---------- */
+.main-col {
+  flex: 1 1 0;
+  min-width: 0;                 /* permits text/grids to shrink */
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.page-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 22px 28px 48px;
+  min-width: 0;
+}
+
+/* ---------- Topbar ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  min-height: 56px;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.topbar-crumbs {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-3);
+  white-space: nowrap;
+  min-width: 0;
+}
+.topbar-crumbs .here { color: var(--text); }
+.topbar-search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: var(--r-2);
+  color: var(--text-2);
+  font-size: 13px;
+  flex: 1 1 220px;
+  max-width: 360px;
+  min-width: 0;
+}
+.topbar-search input {
+  background: transparent; border: 0; outline: 0;
+  color: var(--text); font-family: inherit; font-size: 13px;
+  flex: 1; min-width: 0;
+}
+.topbar-search .kbd {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-3);
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  flex: 0 0 auto;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
 }
 
 .menu-toggle {
@@ -131,31 +153,67 @@ html, body { min-width: 0; max-width: 100vw; overflow-x: hidden; }
 }
 .menu-toggle:hover { color: var(--text); border-color: var(--border-strong); }
 
-/* ---------------------------------------------------------------
- * Topbar — wraps gracefully on narrow screens
- * --------------------------------------------------------------- */
-.topbar {
-  flex-wrap: wrap;
-  row-gap: 8px;
-  padding: 10px 20px;
-}
-.topbar-left {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.topbar-search {
-  flex: 1 1 200px;
-  max-width: 320px;
-  min-width: 0;
-}
-.topbar-right {
-  flex: 0 1 auto;
-  flex-wrap: wrap;
+/* ---------- Telemetry strip ---------- */
+.tele-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
+  padding: 10px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
 }
+.tele-card {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 0;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  min-width: 0;
+}
+.tele-card .tele-icon {
+  grid-row: 1 / span 2;
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  color: var(--accent);
+  background: var(--accent-faint);
+  border-radius: 8px;
+}
+.tele-card .tele-label {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.tele-card .tele-value {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--text);
+  white-space: nowrap;
+  line-height: 1.1;
+}
+.tele-card .tele-unit {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+  margin-left: 4px;
+}
+.tele-card.ok    .tele-icon { color: var(--ok);     background: var(--ok-faint); }
+.tele-card.warn  .tele-icon { color: var(--warn);   background: var(--warn-faint); }
+.tele-card.danger .tele-icon { color: var(--danger); background: var(--danger-faint); }
 
-/* Login: drop the 1fr/480px/1fr CSS grid on mobile (it never worked
- * with the .wx-login JSX classes anyway). Just stack everything. */
+/* ---------- Missing-class supplements ---------- */
+.flow-body { flex: 1; min-width: 0; }
+.flow-body .flow-title { font-size: 13.5px; font-weight: 600; margin-bottom: 2px; }
+.flow-body .flow-text  { font-size: 12px; color: var(--text-2); line-height: 1.45; }
+
+/* ---------- Login page ---------- */
 .wx-login {
   position: relative;
   min-height: 100vh;
@@ -168,30 +226,30 @@ html, body { min-width: 0; max-width: 100vw; overflow-x: hidden; }
 .wx-login-content {
   position: relative; z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
-  gap: 56px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+  gap: 64px;
   align-items: center;
   justify-content: center;
-  max-width: 1200px;
+  max-width: 1180px;
   width: 100%;
   margin: 0 auto;
-  padding: 64px 32px;
+  padding: 64px 40px;
   flex: 1;
 }
-.wx-login-left { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.wx-login-left { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
 .wx-login-brand { display: flex; align-items: center; gap: 14px; }
 .wx-login-brand-name { font-family: var(--font-display); font-size: 26px; line-height: 1; }
 .wx-login-brand-tag { font-size: 10.5px; color: var(--text-3); letter-spacing: 0.18em; text-transform: uppercase; }
 .wx-login-headline {
   font-family: var(--font-display);
-  font-size: clamp(36px, 6vw, 56px);
+  font-size: clamp(34px, 5.5vw, 54px);
   line-height: 1.02;
   letter-spacing: -0.02em;
   margin: 0;
   color: var(--text);
 }
 .wx-login-sub {
-  font-size: 14.5px; line-height: 1.6;
+  font-size: 14px; line-height: 1.6;
   color: var(--text-2); max-width: 48ch; margin: 0;
 }
 .wx-login-stats {
@@ -207,7 +265,6 @@ html, body { min-width: 0; max-width: 100vw; overflow-x: hidden; }
   border: 1px solid var(--border);
   border-radius: 12px;
   backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
 }
 :root[data-theme="dark"] .wx-login-stat { background: rgba(26, 35, 46, 0.65); }
 .wx-login-stat-v { font-family: var(--font-mono); font-weight: 600; font-size: 15px; }
@@ -216,7 +273,7 @@ html, body { min-width: 0; max-width: 100vw; overflow-x: hidden; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 18px;
-  padding: 28px 28px 24px;
+  padding: 30px 30px 26px;
   box-shadow: var(--shadow-2);
   display: flex; flex-direction: column; gap: 16px;
   min-width: 0;
@@ -244,73 +301,161 @@ html, body { min-width: 0; max-width: 100vw; overflow-x: hidden; }
   margin-top: 4px;
 }
 
-/* ---------------------------------------------------------------
- * Breakpoints
- * --------------------------------------------------------------- */
+/* ---------- Benchmark screen ---------- */
+.benchmark-hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+}
+.benchmark-tests {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
 
-/* === Large tablet / small laptop === */
+/* ---------- Wind screen ---------- */
+.wind-hero-grid {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 36px;
+}
+.wind-body-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 18px;
+}
+
+/* ---------- Control screen ---------- */
+.control-primary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.control-secondary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+/* ---------- Reports screen ---------- */
+.reports-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.reports-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 18px;
+}
+.reports-log { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.reports-log .flight-row { min-width: 720px; }
+.reports-search { width: 240px; max-width: 100%; }
+
+/* ============================================================
+ * Breakpoints
+ *
+ *  ≤ 1180px — laptop:  collapse 3-col dashboard to 2; reduce
+ *                       weather grid to 3 cols.
+ *  ≤  900px — tablet:  sidebar becomes a drawer, hamburger
+ *                       appears, 2-col grids.
+ *  ≤  640px — phone:   tighter padding, 2-col tele strip,
+ *                       table → horizontal scroll.
+ *  ≤  380px — narrow:  tele strip 1-col, hide secondary chrome.
+ * ============================================================ */
+
 @media (max-width: 1180px) {
   .dash-grid { grid-template-columns: 1fr 1.4fr; }
   .dash-grid > .col:nth-child(3) { grid-column: 1 / -1; }
   .wx-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .control-grid { grid-template-columns: 1fr; }
   .principle-grid, .wf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .wx-login-content { gap: 36px; padding: 48px 32px; }
 }
 
-/* === Tablet portrait === */
-@media (max-width: 960px) {
-  .app-shell { grid-template-columns: 1fr; }
+@media (max-width: 900px) {
+  .reports-row { grid-template-columns: 1fr; }
+  .wind-hero-grid { grid-template-columns: 1fr; gap: 22px; justify-items: center; }
+  .wind-body-grid { grid-template-columns: 1fr; }
+  .benchmark-hero { grid-template-columns: 1fr; gap: 16px; text-align: center; }
+  .menu-toggle {
+    display: inline-flex;
+  }
+
   .sidebar {
-    position: fixed; top: 0; left: 0; bottom: 0;
-    width: 260px;
-    z-index: 100;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 100;                       /* above the scrim (90) */
     transform: translateX(-100%);
     transition: transform 220ms cubic-bezier(.2, .8, .2, 1);
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+    box-shadow: none;
+    will-change: transform;
   }
-  .sidebar.open { transform: translateX(0); }
-  .menu-toggle { display: inline-grid; }
-  .tele-row { padding: 10px 16px; gap: 8px; }
-  .page-scroll { padding: 16px 18px 36px; }
-  .topbar { padding: 10px 16px; }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.30);
+  }
+
+  .topbar { padding: 9px 16px; }
   .topbar-search { display: none; }
   .topbar-right .user-chip .name,
   .topbar-right .user-chip .role { display: none; }
-  .topbar-right .user-chip { padding: 2px; }
-  .topbar-right .pill.mono:not(.dot-only) { display: none; }
-  .page-title { font-size: 32px; }
+  .topbar-right .user-chip {
+    padding: 2px; gap: 0;
+    border: 1px solid var(--border);
+  }
+  .topbar-right .pill.mono { display: none; }
+
+  .tele-row { padding: 10px 16px; gap: 8px; }
+  .page-scroll { padding: 18px 18px 36px; }
+
+  .page-title { font-size: 30px; }
   .ph-main { flex-direction: column; align-items: flex-start; gap: 14px; }
   .page-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
-  .wx-hero { grid-template-columns: 1fr; gap: 16px; padding: 18px; }
+
+  .wx-hero { grid-template-columns: 1fr; gap: 14px; padding: 18px; }
   .wx-hero-now { flex-wrap: wrap; gap: 14px; }
-  .wx-hero-temp-value { font-size: 64px; }
+  .wx-hero-temp-value { font-size: 60px; }
   .wx-status { max-width: 100%; }
+
   .wx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .forecast-strip { padding-bottom: 8px; }
-  .fleet-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dash-grid { grid-template-columns: 1fr; }
+  .fleet-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .principle-grid, .wf-grid { grid-template-columns: 1fr; }
   .map-card, .map-wrap { height: 360px; }
-  .wx-login-content { grid-template-columns: 1fr; padding: 40px 24px; gap: 28px; max-width: 540px; }
-  .wx-login-left { order: 2; }
-  .wx-login-card { order: 1; }
+
+  .wx-login-content {
+    grid-template-columns: 1fr;
+    padding: 36px 22px;
+    gap: 26px;
+    max-width: 520px;
+  }
+  .wx-login-left  { order: 2; }
+  .wx-login-card  { order: 1; }
   .wx-login-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-/* === Phone === */
 @media (max-width: 640px) {
-  .tele-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 10px 14px;
-  }
-  .page-scroll { padding: 14px 14px 32px; }
-  .topbar { padding: 9px 14px; gap: 10px; }
+  .control-primary { grid-template-columns: 1fr; }
+  .topbar { padding: 9px 12px; gap: 10px; min-height: 52px; }
   .topbar-crumbs { font-size: 12px; }
   .topbar-right { gap: 8px; }
   .icon-btn { width: 34px; height: 34px; }
+
+  .tele-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .tele-card { padding: 8px 10px; }
+  .tele-card .tele-value { font-size: 16px; }
+
+  .page-scroll { padding: 14px 14px 32px; }
   .page-title { font-size: 26px; }
   .page-sub { font-size: 13px; }
+
   .wx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .wx-stat { padding: 12px 14px; }
   .wx-stat-num { font-size: 22px; }
@@ -318,7 +463,7 @@ html, body { min-width: 0; max-width: 100vw; overflow-x: hidden; }
   .wx-hero-temp-value { font-size: 52px; }
   .wx-hero-cond { font-size: 16px; }
   .fleet-grid { grid-template-columns: 1fr; }
-  .forecast-cell { min-width: 76px; }
+  .forecast-cell { min-width: 80px; }
   .section-h { padding: 14px 16px; }
   .section-b { padding: 4px 16px 18px; }
   .section-title { font-size: 18px; }
@@ -328,46 +473,41 @@ html, body { min-width: 0; max-width: 100vw; overflow-x: hidden; }
   .modal { width: calc(100vw - 32px); max-width: 460px; }
   .toast-stack { right: 12px; left: 12px; bottom: 14px; }
   .toast { min-width: 0; max-width: 100%; }
-  /* Hide breadcrumbs to save space */
   .ph-crumbs { display: none; }
   .ph-wrap { margin-bottom: 16px; }
   .wx-login-content { padding: 28px 18px; gap: 22px; }
   .wx-login-card { padding: 22px 20px 18px; }
   .wx-login-headline { font-size: clamp(28px, 8vw, 40px); }
   .wx-login-stats { grid-template-columns: 1fr; }
-  /* Make tables horizontally scrollable rather than truncated */
   .flight-row {
     grid-template-columns: 90px 1fr 80px 60px 60px 80px 60px;
     gap: 8px; font-size: 12px; padding: 10px;
   }
   .flight-row.head { font-size: 10px; }
-  .reports-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .reports-scroll > * { min-width: 720px; }
   .bar-chart { height: 160px; }
-  .wireframe-shell { font-size: 12px; }
 }
 
-/* === Tiny phones === */
 @media (max-width: 380px) {
   .tele-row { grid-template-columns: 1fr; }
   .topbar-right .theme-toggle { display: none; }
 }
 
-/* ---------------------------------------------------------------
- * Mobile-only "back to top" / sidebar trigger inside Topbar.
- * --------------------------------------------------------------- */
-@media (min-width: 961px) {
-  .menu-toggle { display: none !important; }
-  .sidebar-scrim { display: none !important; }
-}
-
-/* ---------------------------------------------------------------
+/* ============================================================
  * Accessibility / motion preferences
- * --------------------------------------------------------------- */
+ * ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ============================================================
+ * Print: drop the live-app chrome
+ * ============================================================ */
+@media print {
+  .sidebar, .topbar, .tele-row, .toast-stack, .menu-toggle { display: none !important; }
+  .main-col { display: block; }
+  .page-scroll { overflow: visible; padding: 0; }
 }

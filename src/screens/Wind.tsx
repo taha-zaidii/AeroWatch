@@ -28,7 +28,7 @@ export default function WindAlertScreen() {
         </div>
       </div>
 
-      <div className="wind-hero" style={{ display:'grid', gridTemplateColumns:'auto 1fr', gap:36, marginBottom:18, position:'relative' }}>
+      <div className="wind-hero wind-hero-grid" style={{ marginBottom:18, position:'relative' }}>
         <HCINote n={1} top={14} right={14} principle="Visibility & Feedback" label="Wind rose">
           The arrow rotates to current wind heading; gust value updates live.
         </HCINote>
@@ -61,7 +61,7 @@ export default function WindAlertScreen() {
         </div>
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:18 }}>
+      <div className="wind-body-grid">
         <div className="card" style={{ position:'relative' }}>
           <HCINote n={2} top={14} right={14} principle="Error Prevention" label="Active alerts list">
             Each alert shows source, time, and severity. Acknowledge confirms receipt and is logged.

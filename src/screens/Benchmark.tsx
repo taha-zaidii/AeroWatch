@@ -79,7 +79,7 @@ export default function BenchmarkScreen() {
         </div>
       </div>
 
-      <div style={{ background:'linear-gradient(135deg, rgba(163,197,133,0.18), rgba(107,143,78,0.06))', border:'1px solid var(--accent)', borderRadius:16, padding:24, marginBottom:18, display:'grid', gridTemplateColumns:'auto 1fr', gap:28, alignItems:'center' }}>
+      <div className="benchmark-hero" style={{ background:'linear-gradient(135deg, rgba(163,197,133,0.18), rgba(107,143,78,0.06))', border:'1px solid var(--accent)', borderRadius:16, padding:24, marginBottom:18 }}>
         <div style={{ textAlign:'center' }}>
           <div style={{ fontSize:11, letterSpacing:'0.16em', textTransform:'uppercase', color:'var(--text-3)' }}>Overall score</div>
           <div className="serif" style={{ fontSize:72, lineHeight:1, color:'var(--accent)', letterSpacing:'-0.03em', marginTop:4 }}>{overall != null ? overall : '—'}</div>
@@ -91,7 +91,7 @@ export default function BenchmarkScreen() {
         </div>
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:14 }}>
+      <div className="benchmark-tests">
         {TESTS.map(t => {
           const r = results[t.id];
           return (

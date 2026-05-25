@@ -41,7 +41,7 @@ export default function Reports() {
         </div>
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:14, marginBottom:20 }}>
+      <div className="reports-stats" style={{ marginBottom:20 }}>
         {[{label:'Total flights',v:'42',trend:'+8',sub:'vs last week',icon:'drone',tone:'accent'},{label:'Flight hours',v:'38.4',trend:'+12%',sub:'vs last week',icon:'clock',tone:'accent'},{label:'Success rate',v:'96%',trend:'+2%',sub:'vs last week',icon:'check',tone:'ok'},{label:'Aborted',v:'2',trend:'-1',sub:'vs last week',icon:'warning',tone:'warn'}].map(c => {
           const tc = c.tone==='ok'?'var(--ok)':c.tone==='warn'?'var(--warn)':'var(--accent)';
           const tf = c.tone==='ok'?'var(--ok-faint)':c.tone==='warn'?'var(--warn-faint)':'var(--accent-faint)';
@@ -57,7 +57,7 @@ export default function Reports() {
         })}
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'1.4fr 1fr', gap:18, marginBottom:18 }}>
+      <div className="reports-row" style={{ marginBottom:18 }}>
         <div className="card" style={{ position:'relative' }}>
           <HCINote n={1} top={14} right={14} principle="Visual Hierarchy" label="Today highlighted">
             Today's bar uses the accent color while past days fade — the eye instantly knows where the present is.
@@ -86,14 +86,14 @@ export default function Reports() {
         </div>
       </div>
 
-      <div className="card" style={{ padding:0, position:'relative' }}>
+      <div className="card reports-log" style={{ padding:0, position:'relative' }}>
         <HCINote n={2} top={14} right={14} principle="Consistency" label="Tabular log">
           Columns and pill colors match those used elsewhere — pilots learn the vocabulary once and reuse it everywhere.
         </HCINote>
         <div style={{ padding:'16px 18px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <span className="card-title">Flight log</span>
           <div className="row" style={{ gap:8 }}>
-            <div className="topbar-search" style={{ width:240 }}><Icon name="search" size={13}/><input placeholder="Search by mission, pilot…"/></div>
+            <div className="reports-search topbar-search"><Icon name="search" size={13}/><input placeholder="Search by mission, pilot…"/></div>
             <button className="icon-btn"><Icon name="filter" size={14}/></button>
           </div>
         </div>
