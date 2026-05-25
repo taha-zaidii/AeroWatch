@@ -73,6 +73,7 @@ const ICONS: Record<string, React.ReactNode> = {
   plus:  <><path d="M12 5v14M5 12h14"/></>,
   minus: <path d="M5 12h14"/>,
   x:     <><path d="M18 6L6 18M6 6l12 12"/></>,
+  menu:  <><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></>,
   check: <path d="M5 13l4 4L19 7"/>,
   info:  <><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></>,
   warning: <>

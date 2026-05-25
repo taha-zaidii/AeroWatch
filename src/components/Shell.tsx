@@ -1,47 +1,52 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApp, PAGES } from '../context/AppContext';
 import { Icon } from './Icon';
 
 /* ============================================================
- * Sidebar
+ * Sidebar (with mobile drawer)
  * ============================================================ */
-export function Sidebar() {
+export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { page, setPage, alerts, setAuthed } = useApp();
   const unreadAlerts = alerts.filter(a => !a.acknowledged).length;
   const visiblePages = PAGES.filter(p => !p.hidden);
 
+  const navigate = (id: string) => { setPage(id); onClose(); };
+
   return (
-    <aside className="sidebar">
-      <div className="brand">
-        <div className="brand-mark"><Icon name="wind" size={18} stroke={2} style={{ color: '#fff' }}/></div>
-        <div>
-          <div className="brand-name">AeroWatch</div>
-          <div className="brand-tag">UAV Weather Intelligence</div>
+    <>
+      <div className={`sidebar-scrim ${open ? 'open' : ''}`} onClick={onClose} aria-hidden="true"/>
+      <aside className={`sidebar ${open ? 'open' : ''}`}>
+        <div className="brand">
+          <div className="brand-mark"><Icon name="wind" size={18} stroke={2} style={{ color: '#fff' }}/></div>
+          <div>
+            <div className="brand-name">AeroWatch</div>
+            <div className="brand-tag">UAV Weather Intelligence</div>
+          </div>
         </div>
-      </div>
 
-      <div className="nav-section">Operations</div>
-      {visiblePages.slice(0, 4).map(p => (
-        <NavItem key={p.id} page={p} active={page === p.id} onClick={() => setPage(p.id)}
-          badge={p.alert && unreadAlerts ? unreadAlerts : null} />
-      ))}
+        <div className="nav-section">Operations</div>
+        {visiblePages.slice(0, 4).map(p => (
+          <NavItem key={p.id} page={p} active={page === p.id} onClick={() => navigate(p.id)}
+            badge={p.alert && unreadAlerts ? unreadAlerts : null} />
+        ))}
 
-      <div className="nav-section">Project</div>
-      {visiblePages.slice(4).map(p => (
-        <NavItem key={p.id} page={p} active={page === p.id} onClick={() => setPage(p.id)} />
-      ))}
+        <div className="nav-section">Project</div>
+        {visiblePages.slice(4).map(p => (
+          <NavItem key={p.id} page={p} active={page === p.id} onClick={() => navigate(p.id)} />
+        ))}
 
-      <div className="sidebar-footer">
-        <div className="system-status">
-          <span className="dot ok"/>
-          <span>All systems nominal</span>
+        <div className="sidebar-footer">
+          <div className="system-status">
+            <span className="dot ok"/>
+            <span>All systems nominal</span>
+          </div>
+          <div className="nav-item" onClick={() => { setAuthed(false); setPage('login'); onClose(); }}>
+            <Icon name="logout" size={16}/>
+            <span>Sign out</span>
+          </div>
         </div>
-        <div className="nav-item" onClick={() => { setAuthed(false); setPage('login'); }}>
-          <Icon name="logout" size={16}/>
-          <span>Sign out</span>
-        </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }
 
@@ -73,8 +78,8 @@ function NavItem({
 /* ============================================================
  * Topbar
  * ============================================================ */
-export function Topbar() {
-  const { page, setPage, user, telemetry, showAnnotations, setShowAnnotations, trainee, setTrainee, theme, setTheme } = useApp();
+export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
+  const { page, setPage, user, telemetry, showAnnotations, setShowAnnotations, theme, setTheme } = useApp();
   const here = PAGES.find(p => p.id === page);
   const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const showBack = page !== 'dashboard' && page !== 'login';
@@ -82,6 +87,11 @@ export function Topbar() {
   return (
     <div className="topbar">
       <div className="topbar-left">
+        {onMenuClick && (
+          <button className="menu-toggle" onClick={onMenuClick} aria-label="Open menu">
+            <Icon name="menu" size={18}/>
+          </button>
+        )}
         {showBack && (
           <button className="ph-back" onClick={() => setPage('dashboard')} title="Back to Dashboard" style={{ marginRight: 4 }}>
             <Icon name="chevronLeft" size={14}/> Back
@@ -99,19 +109,6 @@ export function Topbar() {
         </div>
       </div>
       <div className="topbar-right">
-        <button
-          onClick={() => setTrainee(v => !v)}
-          className="pill mono"
-          style={{
-            cursor: 'pointer',
-            border: '1px solid var(--border)',
-            background: trainee ? 'var(--accent-soft)' : 'var(--surface-2)',
-            color: trainee ? 'var(--accent-3)' : 'var(--text-2)',
-          }}
-          title="Toggle Trainee / Operator mode"
-        >
-          {trainee ? '◐ TRAINEE' : '● OPERATOR'}
-        </button>
         <div className="pill mono"><span className="dot ok"/>LIVE · {telemetry.callsign}</div>
         <button
           className="theme-toggle"

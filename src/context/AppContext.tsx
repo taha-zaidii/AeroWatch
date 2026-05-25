@@ -101,12 +101,6 @@ export interface AppState {
   pushToast: (t: Omit<Toast, 'id'>) => void;
   showAnnotations: boolean;
   setShowAnnotations: React.Dispatch<React.SetStateAction<boolean>>;
-  firstRun: boolean;
-  setFirstRun: React.Dispatch<React.SetStateAction<boolean>>;
-  trainee: boolean;
-  setTrainee: React.Dispatch<React.SetStateAction<boolean>>;
-  coachStep: number;
-  setCoachStep: React.Dispatch<React.SetStateAction<number>>;
   theme: string;
   setTheme: (t: string) => void;
 }
@@ -189,9 +183,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [telemetry, setTelemetry] = useState<Telemetry>(initialTelemetry);
   const [alerts, setAlerts] = useState<Alert[]>(seedAlerts);
   const [flightLogs, setFlightLogs] = useState<FlightLog[]>(seedFlightLogs);
-  const [firstRun, setFirstRun] = useState(false);
-  const [trainee, setTrainee] = useState(true);
-  const [coachStep, setCoachStep] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [showAnnotations, setShowAnnotations] = useState(false);
   const [theme, setThemeState] = useState<string>(() => {
@@ -273,9 +264,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     flightLogs, setFlightLogs,
     toasts, pushToast,
     showAnnotations, setShowAnnotations,
-    firstRun, setFirstRun,
-    trainee, setTrainee,
-    coachStep, setCoachStep,
     theme, setTheme,
   };
 

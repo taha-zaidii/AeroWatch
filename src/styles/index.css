@@ -64,17 +64,12 @@ body {
   overflow-x: hidden;
 }
 
-/* ===== App shell ===== */
+/* ===== App shell =====
+ * Legacy. Active layout lives in responsive.css under .app-shell.
+ * Kept only so older rules that scope under `.app` continue to apply
+ * when matched via the new `.app-shell` class. */
 .app {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  grid-template-rows: 56px 1fr;
-  grid-template-areas:
-    "sidebar topbar"
-    "sidebar main";
-  height: 100vh;
-  width: 100vw;
-  min-width: 1280px;
+  display: contents;
 }
 
 .topbar {

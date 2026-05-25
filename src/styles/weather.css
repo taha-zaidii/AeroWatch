@@ -609,20 +609,4 @@
   justify-content: center;
 }
 
-@media (max-width: 920px) {
-  .wx-login-content { grid-template-columns: 1fr; gap: 32px; }
-  .wx-login-headline { font-size: 40px; }
-}
-
-/* === Responsive === */
-  .wx-grid { grid-template-columns: repeat(2, 1fr); }
-  .fleet-grid { grid-template-columns: repeat(2, 1fr); }
-  .forecast-strip { grid-template-columns: repeat(6, 1fr); }
-  .flow-rail { grid-template-columns: 1fr; }
-}
-@media (max-width: 880px) {
-  .wx-hero { grid-template-columns: 1fr; }
-  .wx-status { max-width: none; }
-  .wx-grid { grid-template-columns: repeat(2, 1fr); }
-  .forecast-strip { grid-template-columns: repeat(4, 1fr); }
-}
+/* Responsive overrides live in responsive.css (loaded after this file). */
