@@ -103,7 +103,7 @@ export function MissionMap({ pickedCs, onPick, height = 520, layers, onLayerChan
   const [cursor, setCursor] = useState('grab');
   const [drones, setDrones] = useState(INITIAL_DRONES);
   const [waypoints, setWaypoints] = useState(INITIAL_WAYPOINTS);
-  const [trails, setTrails] = useState<Record<string, {lat:number;lng:number}[]>>(() => {
+  const [trails] = useState<Record<string, {lat:number;lng:number}[]>>(() => {
     const t: Record<string, {lat:number;lng:number}[]> = {};
     INITIAL_DRONES.forEach(d => { t[d.cs] = [{ lat: d.lat, lng: d.lng }]; });
     return t;
@@ -329,8 +329,8 @@ export function MissionMap({ pickedCs, onPick, height = 520, layers, onLayerChan
         </div>;
       })}
       <div style={{ position:'absolute', top:12, left:12, display:'flex', gap:6, zIndex:20 }}>
-        {([['geofence','shield','G'],['weather','rain','W'],['path','route','P'],['labels','tag','L']] as [string,string,string][]).map(([k,icon,kbd]) => (
-          <button key={k} onClick={e=>{e.stopPropagation();onLayerChange(k);}} style={{ padding:'6px 10px', borderRadius:8, background: (layers as any)[k] ? 'var(--accent-soft)' : 'rgba(255,255,255,0.92)', border:`1px solid ${(layers as any)[k]?'var(--accent)':'var(--border)'}`, color:(layers as any)[k]?'var(--accent-3)':'var(--text-2)', fontSize:11, display:'flex', alignItems:'center', gap:6, cursor:'pointer', fontFamily:'inherit', backdropFilter:'blur(8px)' }}>
+        {([['geofence','shield','G'],['weather','rain','W'],['path','route','P'],['labels','tag','L']] as [keyof Layers,string,string][]).map(([k,icon,kbd]) => (
+          <button key={k} onClick={e=>{e.stopPropagation();onLayerChange(k);}} style={{ padding:'6px 10px', borderRadius:8, background: layers[k] ? 'var(--accent-soft)' : 'rgba(255,255,255,0.92)', border:`1px solid ${layers[k]?'var(--accent)':'var(--border)'}`, color:layers[k]?'var(--accent-3)':'var(--text-2)', fontSize:11, display:'flex', alignItems:'center', gap:6, cursor:'pointer', fontFamily:'inherit', backdropFilter:'blur(8px)' }}>
             <Icon name={icon} size={11}/>{k.charAt(0).toUpperCase()+k.slice(1)}<span style={{fontFamily:'JetBrains Mono',fontSize:9,color:'var(--text-3)',marginLeft:4}}>{kbd}</span>
           </button>
         ))}

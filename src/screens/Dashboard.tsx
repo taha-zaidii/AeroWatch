@@ -7,7 +7,12 @@ import { Icon } from '../components/Icon';
 import { MissionMap } from '../components/MissionMap';
 import { RiskPanel } from '../components/RiskPanel';
 
-const fleet = [
+interface FleetCraft {
+  cs: string; role: string; model: string; battery: number; status: string;
+  alt?: number; spd?: number; lastFlight?: string;
+}
+
+const fleet: FleetCraft[] = [
   { cs:'AERO-07', role:'Atmospheric survey', model:'Skyhawk X4', battery:78, alt:124, spd:14.2, status:'IN-FLIGHT' },
   { cs:'AERO-12', role:'Cloud profiling',    model:'Skyhawk X4', battery:92, lastFlight:'Last flight 2 h ago', status:'STANDBY' },
   { cs:'AERO-04', role:'Mapping & imagery',  model:'Skyhawk X6', battery:38, lastFlight:'Charging', status:'CHARGING' },
@@ -50,7 +55,7 @@ export default function Dashboard() {
   const setPage = (id: string) => nav(`/${id}`);
   const [pickedCs, setPickedCs] = useState('AERO-07');
   const [layers, setLayers] = useState({ geofence:true, weather:true, path:true, labels:true });
-  const toggleLayer = (k: string) => setLayers(s => ({ ...s, [k]: !(s as any)[k] }));
+  const toggleLayer = (k: string) => setLayers(s => ({ ...s, [k]: !s[k as keyof typeof s] }));
   const [open, setOpen] = useState({ conditions:true, risk:true, forecast:true, fleet:true, map:true, flow:true });
   const tog = (k: keyof typeof open) => setOpen(o => ({ ...o, [k]: !o[k] }));
   const [stepDone, setStepDone] = useState({ plan:false, preflight:false, launch:false });
@@ -78,14 +83,23 @@ export default function Dashboard() {
     ? { tone:'ok', label:'Conditions favourable', sub:'All flight parameters within nominal range.' }
     : { tone:'warn', label:'Conditions marginal', sub:'Review wind & visibility before launch.' };
 
-  const Section = ({ id, title, sub, action, open: isOpen, onToggle, children }: any) => (
+  interface SectionProps {
+    id: string;
+    title: string;
+    sub?: string;
+    action?: React.ReactNode;
+    open: boolean;
+    onToggle: () => void;
+    children?: React.ReactNode;
+  }
+  const Section = ({ id, title, sub, action, open: isOpen, onToggle, children }: SectionProps) => (
     <section className={`section ${isOpen ? 'open' : 'closed'}`} data-section={id}>
-      <header className="section-h" onClick={onToggle} role="button" tabIndex={0} onKeyDown={(e:any)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onToggle();}}}>
+      <header className="section-h" onClick={onToggle} role="button" tabIndex={0} onKeyDown={(e: React.KeyboardEvent)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onToggle();}}}>
         <div className="section-h-l">
           <button className="section-toggle" aria-label={isOpen?'Collapse':'Expand'}><Icon name={isOpen?'chevronDown':'chevronRight'} size={14}/></button>
           <div><h2 className="section-title">{title}</h2>{sub && <div className="section-sub">{sub}</div>}</div>
         </div>
-        {action && <div onClick={(e:any)=>e.stopPropagation()} className="section-h-r">{action}</div>}
+        {action && <div onClick={(e: React.MouseEvent)=>e.stopPropagation()} className="section-h-r">{action}</div>}
       </header>
       {isOpen && <div className="section-b">{children}</div>}
     </section>
@@ -197,8 +211,8 @@ export default function Dashboard() {
                 <div className="fleet-meta">{d.role} · {d.model}</div>
                 <div className="fleet-batt-row"><div className={`fleet-batt-bar ${battTone}`}><div className="fleet-batt-fill" style={{width:`${d.battery}%`}}/></div><div className="fleet-batt-num">{d.battery}%</div></div>
                 {d.status==='IN-FLIGHT'
-                  ? <div className="fleet-stats"><span><Icon name="trending" size={10}/> {(d as any).alt} m</span><span><Icon name="route" size={10}/> {(d as any).spd} m/s</span></div>
-                  : <div className="fleet-stats" style={{color:'var(--text-3)'}}><Icon name="home" size={10}/> {(d as any).lastFlight}</div>}
+                  ? <div className="fleet-stats"><span><Icon name="trending" size={10}/> {d.alt} m</span><span><Icon name="route" size={10}/> {d.spd} m/s</span></div>
+                  : <div className="fleet-stats" style={{color:'var(--text-3)'}}><Icon name="home" size={10}/> {d.lastFlight}</div>}
               </button>
             );
           })}
