@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../store/app';
 import { Icon } from '../components/Icon';
 
 interface TestResult { score: number; time: number; }

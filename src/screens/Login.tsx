@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../store/app';
 import { Icon } from '../components/Icon';
 
 export default function LoginScreen() {
-  const { setAuthed, setUser, setPage, pushToast } = useApp();
+  const { setAuthed, setUser, pushToast } = useApp();
   const [username, setUsername] = useState('m.khan');
   const [password, setPassword] = useState('••••••••');
   const [showPass, setShowPass] = useState(false);
@@ -26,7 +26,7 @@ export default function LoginScreen() {
     setTimeout(() => {
       setLoading(false);
       setUser({ name:'Maya Khan', initials:'MK', role:'Flight Operator' });
-      setAuthed(true); setPage('dashboard');
+      setAuthed(true);
       pushToast({ level:'ok', title:'Welcome back, Maya', body:'Live weather data is streaming for your sector.' });
     }, 600);
   };

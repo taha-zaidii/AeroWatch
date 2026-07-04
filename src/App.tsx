@@ -1,29 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import { AppProvider, useApp } from './context/AppContext';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useAppStore } from './store/app';
+import { useKeyboardNav, useTelemetrySimulation, useTheme } from './hooks/useSystemEffects';
 import { Sidebar, Topbar, Toasts } from './components/Shell';
 
-import LoginScreen     from './screens/Login';
-import Dashboard       from './screens/Dashboard';
-import WindAlertScreen from './screens/Wind';
-import ControlPanel    from './screens/Control';
-import Reports         from './screens/Reports';
-import Wireframes      from './screens/Wireframes';
-import Evaluation      from './screens/Evaluation';
-import BenchmarkScreen from './screens/Benchmark';
+import LoginScreen from './screens/Login';
+const Dashboard       = lazy(() => import('./screens/Dashboard'));
+const WindAlertScreen = lazy(() => import('./screens/Wind'));
+const ControlPanel    = lazy(() => import('./screens/Control'));
+const Reports         = lazy(() => import('./screens/Reports'));
+const Wireframes      = lazy(() => import('./screens/Wireframes'));
+const Evaluation      = lazy(() => import('./screens/Evaluation'));
+const BenchmarkScreen = lazy(() => import('./screens/Benchmark'));
 
-const PAGE_VIEWS: Record<string, React.ComponentType> = {
-  dashboard:  Dashboard,
-  wind:       WindAlertScreen,
-  control:    ControlPanel,
-  reports:    Reports,
-  wireframes: Wireframes,
-  evaluation: Evaluation,
-  benchmark:  BenchmarkScreen,
-};
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
+      retry: 2,
+    },
+  },
+});
+
+function ScreenFallback() {
+  return (
+    <div style={{ display: 'grid', placeItems: 'center', minHeight: 240, color: 'var(--text-3)', fontSize: 13 }}>
+      Loading…
+    </div>
+  );
+}
 
 function AppShell() {
-  const { page, authed, telemetry } = useApp();
+  const authed = useAppStore((s) => s.authed);
+  const telemetry = useAppStore((s) => s.telemetry);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useTheme();
+  useTelemetrySimulation();
+  useKeyboardNav();
 
   // Auto-close the mobile drawer on viewport widen
   useEffect(() => {
@@ -47,8 +63,6 @@ function AppShell() {
     );
   }
 
-  const ActiveView = PAGE_VIEWS[page] || Dashboard;
-
   return (
     <div className="app-shell">
       <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)}/>
@@ -71,7 +85,19 @@ function AppShell() {
           />
         </div>
         <main className="page-scroll">
-          <ActiveView/>
+          <Suspense fallback={<ScreenFallback/>}>
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace/>}/>
+              <Route path="/dashboard"  element={<Dashboard/>}/>
+              <Route path="/wind"       element={<WindAlertScreen/>}/>
+              <Route path="/control"    element={<ControlPanel/>}/>
+              <Route path="/reports"    element={<Reports/>}/>
+              <Route path="/wireframes" element={<Wireframes/>}/>
+              <Route path="/evaluation" element={<Evaluation/>}/>
+              <Route path="/benchmark"  element={<BenchmarkScreen/>}/>
+              <Route path="*" element={<Navigate to="/dashboard" replace/>}/>
+            </Routes>
+          </Suspense>
         </main>
       </div>
       <Toasts/>
@@ -102,8 +128,10 @@ function TeleCard({ icon, label, value, unit, tone = '' }: {
 
 export default function App() {
   return (
-    <AppProvider>
-      <AppShell/>
-    </AppProvider>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AppShell/>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }

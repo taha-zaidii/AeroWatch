@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
+import { useNavigate } from 'react-router-dom';
+import { useApp, type Telemetry } from '../store/app';
 import { Icon } from '../components/Icon';
 import { MissionMap } from '../components/MissionMap';
 
@@ -10,7 +11,7 @@ const fleet = [
   { cs:'AERO-19', role:'Wind profiling',     model:'Skyhawk X4', battery:71, lastFlight:'Last flight 5 h ago', status:'STANDBY' },
 ];
 
-function skyKind(t: ReturnType<typeof useApp>['telemetry']) {
+function skyKind(t: Telemetry) {
   if (t.precipitation > 0.2) return 'rain';
   if (t.cloudBase < 1200) return 'cloud';
   if (t.humidity < 55) return 'sun';
@@ -34,7 +35,9 @@ function WeatherIcon({ kind, size = 24 }: { kind: string; size?: number }) {
 }
 
 export default function Dashboard() {
-  const { telemetry, alerts, setPage, pushToast } = useApp();
+  const { telemetry, pushToast } = useApp();
+  const nav = useNavigate();
+  const setPage = (id: string) => nav(`/${id}`);
   const [pickedCs, setPickedCs] = useState('AERO-07');
   const [layers, setLayers] = useState({ geofence:true, weather:true, path:true, labels:true });
   const toggleLayer = (k: string) => setLayers(s => ({ ...s, [k]: !(s as any)[k] }));

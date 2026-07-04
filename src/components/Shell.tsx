@@ -1,16 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { useApp, PAGES } from '../context/AppContext';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useApp, PAGES } from '../store/app';
 import { Icon } from './Icon';
+
+/** Current page id derived from the URL path. */
+export function usePageId(): string {
+  const { pathname } = useLocation();
+  return pathname.replace(/^\//, '') || 'dashboard';
+}
 
 /* ============================================================
  * Sidebar (with mobile drawer)
  * ============================================================ */
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { page, setPage, alerts, setAuthed } = useApp();
+  const { alerts, setAuthed } = useApp();
+  const page = usePageId();
+  const nav = useNavigate();
   const unreadAlerts = alerts.filter(a => !a.acknowledged).length;
   const visiblePages = PAGES.filter(p => !p.hidden);
 
-  const navigate = (id: string) => { setPage(id); onClose(); };
+  const navigate = (id: string) => { nav(`/${id}`); onClose(); };
 
   return (
     <>
@@ -40,7 +49,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
             <span className="dot ok"/>
             <span>All systems nominal</span>
           </div>
-          <div className="nav-item" onClick={() => { setAuthed(false); setPage('login'); onClose(); }}>
+          <div className="nav-item" onClick={() => { setAuthed(false); nav('/'); onClose(); }}>
             <Icon name="logout" size={16}/>
             <span>Sign out</span>
           </div>
@@ -79,7 +88,10 @@ function NavItem({
  * Topbar
  * ============================================================ */
 export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
-  const { page, setPage, user, telemetry, showAnnotations, setShowAnnotations, theme, setTheme } = useApp();
+  const { user, telemetry, showAnnotations, setShowAnnotations, theme, setTheme } = useApp();
+  const page = usePageId();
+  const nav = useNavigate();
+  const setPage = (id: string) => nav(`/${id}`);
   const here = PAGES.find(p => p.id === page);
   const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const showBack = page !== 'dashboard' && page !== 'login';
