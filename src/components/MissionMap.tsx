@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { aStar, haversine, type Point } from '../lib/astar';
+import { useAppStore } from '../store/app';
 import { Icon } from './Icon';
 
 const TILE = 256;
@@ -14,6 +16,62 @@ const yToLat = (y: number, z: number) => {
 };
 
 const HOME = { lat: 33.7444, lng: 73.0479 };
+const GEOFENCE_M = 1200;
+
+/** Simulated convective cells, anchored in geography (meters radius). */
+const STORM_CELLS = [
+  { lat: 33.7550, lng: 73.0600, r: 520 },
+  { lat: 33.7380, lng: 73.0440, r: 330 },
+];
+
+const M_PER_DEG_LAT = 111111;
+const mPerDegLng = (lat: number) => M_PER_DEG_LAT * Math.cos((lat * Math.PI) / 180);
+
+/**
+ * Plans a storm-avoiding route from HOME through every waypoint using A*
+ * over a 72×72 cost grid: cells inside a storm core or outside the
+ * geofence are impassable; storm fringes carry a soft penalty so paths
+ * keep a healthy margin.
+ */
+function planSafeRoute(waypoints: { lat: number; lng: number }[]) {
+  const N = 72;
+  const halfLat = (GEOFENCE_M * 1.25) / M_PER_DEG_LAT;
+  const halfLng = (GEOFENCE_M * 1.25) / mPerDegLng(HOME.lat);
+  const lat0 = HOME.lat - halfLat, lng0 = HOME.lng - halfLng;
+  const dLat = (2 * halfLat) / N, dLng = (2 * halfLng) / N;
+
+  const cellLat = (y: number) => lat0 + (y + 0.5) * dLat;
+  const cellLng = (x: number) => lng0 + (x + 0.5) * dLng;
+  const toCell = (p: { lat: number; lng: number }): Point => ({
+    x: Math.max(0, Math.min(N - 1, Math.floor((p.lng - lng0) / dLng))),
+    y: Math.max(0, Math.min(N - 1, Math.floor((p.lat - lat0) / dLat))),
+  });
+
+  const cost = (x: number, y: number): number => {
+    const lat = cellLat(y), lng = cellLng(x);
+    if (haversine(lat, lng, HOME.lat, HOME.lng) > GEOFENCE_M) return Infinity;
+    for (const cell of STORM_CELLS) {
+      const d = haversine(lat, lng, cell.lat, cell.lng);
+      if (d < cell.r) return Infinity;
+      if (d < cell.r * 1.55) return 6; // fringe penalty: keep a margin
+    }
+    return 1;
+  };
+
+  const stops = [HOME, ...waypoints];
+  const route: { lat: number; lng: number }[] = [];
+  let lengthM = 0;
+  for (let i = 0; i + 1 < stops.length; i++) {
+    const seg = aStar(toCell(stops[i]), toCell(stops[i + 1]), { width: N, height: N, cost });
+    if (!seg) return null;
+    const geoSeg = seg.map((c) => ({ lat: cellLat(c.y), lng: cellLng(c.x) }));
+    for (let j = 1; j < geoSeg.length; j++) {
+      lengthM += haversine(geoSeg[j - 1].lat, geoSeg[j - 1].lng, geoSeg[j].lat, geoSeg[j].lng);
+    }
+    route.push(...(i === 0 ? geoSeg : geoSeg.slice(1)));
+  }
+  return { route, lengthM };
+}
 
 const INITIAL_DRONES = [
   { cs: 'AERO-07', lat: 33.7470, lng: 73.0500, alt: 124, hdg: 47,  spd: 14, role: 'survey',  own: true,  battery: 78 },
@@ -52,9 +110,29 @@ export function MissionMap({ pickedCs, onPick, height = 520, layers, onLayerChan
   });
   const [readout, setReadout] = useState<{lat:number;lng:number}|null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [plannedRoute, setPlannedRoute] = useState<{lat:number;lng:number}[]|null>(null);
   const [draggingWp, setDraggingWp] = useState<string|null>(null);
   const [confirmDel, setConfirmDel] = useState<string|null>(null);
   const [hoverDrone, setHoverDrone] = useState<string|null>(null);
+  const pushToast = useAppStore(s => s.pushToast);
+
+  // A stale plan is worse than no plan — drop it when waypoints move.
+  useEffect(() => { setPlannedRoute(null); }, [waypoints]);
+
+  const planRoute = () => {
+    if (waypoints.length === 0) {
+      pushToast({ level: 'warn', title: 'No waypoints to route', body: 'Enable waypoint mode and click the map to add targets first.' });
+      return;
+    }
+    const result = planSafeRoute(waypoints);
+    if (!result) {
+      setPlannedRoute(null);
+      pushToast({ level: 'danger', title: 'No safe route found', body: 'A waypoint sits inside a storm cell or outside the geofence.' });
+      return;
+    }
+    setPlannedRoute(result.route);
+    pushToast({ level: 'ok', title: 'A* route planned', body: `${(result.lengthM / 1000).toFixed(2)} km through ${waypoints.length} waypoint${waypoints.length > 1 ? 's' : ''} — storm cells avoided, geofence respected.` });
+  };
 
   useEffect(() => {
     const el = containerRef.current; if (!el) return;
@@ -189,12 +267,19 @@ export function MissionMap({ pickedCs, onPick, height = 520, layers, onLayerChan
           <text x={home.x + geofenceRadius * 0.7} y={home.y - geofenceRadius * 0.7} fill="var(--accent-3)" fontSize="10" fontFamily="JetBrains Mono">GEOFENCE · 1.2 km</text>
         </>}
         {layers.weather && (() => {
-          const p1 = project(33.755, 73.060), p2 = project(33.738, 73.044);
           return <g><defs><radialGradient id="storm" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="rgba(217,102,102,0.45)"/><stop offset="60%" stopColor="rgba(212,180,84,0.25)"/><stop offset="100%" stopColor="rgba(212,180,84,0)"/></radialGradient></defs>
-            <circle cx={p1.x} cy={p1.y} r={90} fill="url(#storm)"/>
-            <circle cx={p2.x} cy={p2.y} r={60} fill="url(#storm)" opacity="0.6"/>
+            {STORM_CELLS.map((cell, i) => {
+              const p = project(cell.lat, cell.lng);
+              const rPx = cell.r / mPerPx;
+              return <circle key={i} cx={p.x} cy={p.y} r={rPx} fill="url(#storm)" opacity={i === 0 ? 1 : 0.75}/>;
+            })}
           </g>;
         })()}
+        {plannedRoute && plannedRoute.length > 1 && (
+          <polyline
+            points={plannedRoute.map(w => { const p = project(w.lat, w.lng); return `${p.x},${p.y}`; }).join(' ')}
+            fill="none" stroke="var(--ok)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" opacity="0.95"/>
+        )}
         {layers.path && waypoints.length > 1 && <polyline points={waypoints.map(w => { const p = project(w.lat, w.lng); return `${p.x},${p.y}`; }).join(' ')} fill="none" stroke="var(--accent)" strokeWidth="2" strokeDasharray="4 4" opacity="0.85"/>}
         {drones.map(d => { const tr = trails[d.cs] || []; if (tr.length < 2) return null;
           const pts = tr.map(p => { const pp = project(p.lat, p.lng); return `${pp.x},${pp.y}`; }).join(' ');
@@ -256,6 +341,7 @@ export function MissionMap({ pickedCs, onPick, height = 520, layers, onLayerChan
         ))}
         <button onClick={e=>{e.stopPropagation();setCenter(HOME);setZoom(15);}} className="map-btn" title="Recenter"><Icon name="home" size={12}/></button>
         <button onClick={e=>{e.stopPropagation();setEditMode(v=>!v);}} className="map-btn" style={{ background: editMode?'rgba(163,197,133,0.25)':undefined, borderColor:editMode?'#a3c585':undefined, color:editMode?'#a3c585':undefined }} title={editMode?'Exit waypoint mode':'Add waypoints'}><Icon name="route" size={12}/></button>
+        <button onClick={e=>{e.stopPropagation();planRoute();}} className="map-btn" style={{ background: plannedRoute?'rgba(163,197,133,0.25)':undefined, borderColor:plannedRoute?'#a3c585':undefined, color:plannedRoute?'#a3c585':undefined }} title="Plan storm-safe route (A*)"><Icon name="zap" size={12}/></button>
       </div>
       <div style={{ position:'absolute', bottom:12, left:12, display:'flex', flexDirection:'column', gap:6, zIndex:20 }}>
         <div style={{ background:'rgba(255,255,255,0.92)', border:'1px solid var(--border)', padding:'4px 8px', borderRadius:6, fontFamily:'JetBrains Mono', fontSize:10.5, color:'var(--text-2)', backdropFilter:'blur(8px)' }}>
