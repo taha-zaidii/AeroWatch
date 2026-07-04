@@ -229,6 +229,12 @@ body { margin: 0; }
   flex-direction: column;
   background: var(--bg);
   overflow: hidden;
+  /* #root is a flex row; without these the login screen shrinks to its
+     content's max-content width (~1280px) and leaves a dead bar on wide
+     viewports. Mirror .app-shell's sizing. */
+  flex: 1;
+  width: 100%;
+  min-width: 0;
 }
 .wx-login-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .wx-login-content {
