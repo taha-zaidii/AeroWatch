@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppStore } from './store/app';
 import { useKeyboardNav, useTelemetrySimulation, useTheme } from './hooks/useSystemEffects';
+import { useLiveWeatherBridge } from './hooks/useWeather';
 import { Sidebar, Topbar, Toasts } from './components/Shell';
 
 import LoginScreen from './screens/Login';
@@ -40,6 +41,7 @@ function AppShell() {
   useTheme();
   useTelemetrySimulation();
   useKeyboardNav();
+  useLiveWeatherBridge();
 
   // Auto-close the mobile drawer on viewport widen
   useEffect(() => {

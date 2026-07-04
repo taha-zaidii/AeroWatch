@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
-import { useApp } from '../store/app';
+import React from 'react';
+import { useApp, useAppStore } from '../store/app';
+import { useWeather } from '../hooks/useWeather';
 import { Icon } from '../components/Icon';
 import { HCINote } from '../components/Shell';
 
 export default function WindAlertScreen() {
   const { telemetry, alerts, setAlerts, pushToast } = useApp();
+  const location = useAppStore(s => s.location);
+  const { data: wx } = useWeather();
   const limit = 45;
   const pct = Math.min(100, (telemetry.windGust / limit) * 100);
   const level = telemetry.windGust >= limit ? 'danger' : telemetry.windGust >= limit * 0.85 ? 'warn' : 'ok';
+
+  // Derived live metrics from the real hourly feed
+  const cloudCover = wx ? Math.round(wx.current.cloudCover) : null;
+  const rainHour = wx?.hourly.find(h => h.precipProb >= 50 || h.precip >= 0.2);
+  const rainEtaH = rainHour && wx ? Math.max(0, wx.hourly.indexOf(rainHour)) : null;
+  const visNow = wx?.hourly[0]?.visibility ?? telemetry.visibility;
+  const vis3h = wx?.hourly[2]?.visibility;
+  // Pressure tendency over the next 3 forecast hours (hPa/h)
+  const pressureTrend = wx && wx.hourly.length > 3
+    ? (wx.hourly[3].pressure - wx.hourly[0].pressure) / 3
+    : 0;
+  const trendDown = pressureTrend < -0.5;
 
   const ack = (id: number) => {
     setAlerts(a => a.map(x => x.id === id ? { ...x, acknowledged: true } : x));
@@ -35,16 +50,22 @@ export default function WindAlertScreen() {
         <div className="wind-rose">
           <span className="label n">N</span><span className="label e">E</span>
           <span className="label s">S</span><span className="label w">W</span>
-          <div className="arrow" style={{ transform:`rotate(${30}deg)` }}/>
+          <div className="arrow" style={{ transform:`rotate(${Math.round(telemetry.windHeading)}deg)`, transition:'transform 1.2s ease' }}/>
           <div className="center">
             <div className="mono" style={{ fontSize:34, color:'var(--warn)', lineHeight:1 }}>{telemetry.windGust.toFixed(0)}</div>
             <div style={{ fontSize:11, color:'var(--text-3)', letterSpacing:'0.1em' }}>GUST · KM/H</div>
           </div>
         </div>
         <div>
-          <div className="page-eyebrow" style={{ color:'var(--warn)' }}>Caution · approaching gust threshold</div>
+          <div className="page-eyebrow" style={{ color: level==='ok' ? 'var(--ok)' : level==='warn' ? 'var(--warn)' : 'var(--danger)' }}>
+            {level==='ok' ? `Nominal · winds within limits at ${location.name}` : level==='warn' ? 'Caution · approaching gust threshold' : 'Exceeded · gusts above operational limit'}
+          </div>
           <div className="serif" style={{ fontSize:32, lineHeight:1.1, margin:'8px 0 14px', maxWidth:'40ch' }}>
-            Conditions are deteriorating. Recommend completing current waypoint and returning to home.
+            {level==='ok'
+              ? 'Winds are within operational limits. Conditions support normal flight operations.'
+              : level==='warn'
+              ? 'Conditions are deteriorating. Recommend completing current waypoint and returning to home.'
+              : 'Gusts exceed the operational limit. Land immediately or hold at safe altitude.'}
           </div>
           <div style={{ marginBottom:8, display:'flex', justifyContent:'space-between', fontSize:12, color:'var(--text-3)' }}>
             <span>0 km/h</span><span>Operational limit · {limit} km/h</span>
@@ -92,9 +113,12 @@ export default function WindAlertScreen() {
         </div>
         <div className="col" style={{ gap:14 }}>
           {[
-            { label:'Cloud cover', v:'72', unit:'%', icon:'cloud', sub:'Heavy cumulus advancing from ENE' },
-            { label:'Precipitation', v:'14', unit:'min ETA', icon:'rain', sub:'Light rain expected at 14:32 local' },
-            { label:'Visibility', v:'9.4', unit:'km', icon:'eye', sub:'Reduced from 12.1 km · 30 min ago' },
+            { label:'Cloud cover', v: cloudCover !== null ? String(cloudCover) : '—', unit:'%', icon:'cloud',
+              sub: cloudCover === null ? 'Awaiting live feed…' : cloudCover > 80 ? 'Overcast — expect reduced light' : cloudCover > 40 ? 'Broken cloud layer' : 'Mostly clear skies' },
+            { label:'Precipitation', v: rainEtaH === null ? 'None' : rainEtaH === 0 ? 'Now' : `${rainEtaH}`, unit: rainEtaH !== null && rainEtaH > 0 ? 'h ETA' : '', icon:'rain',
+              sub: rainEtaH === null ? 'No rain signal in the next 48 h' : rainEtaH === 0 ? 'Precipitation in progress at site' : `Rain likely around ${rainHour!.hour} local` },
+            { label:'Visibility', v: visNow.toFixed(1), unit:'km', icon:'eye',
+              sub: vis3h !== undefined ? (vis3h > visNow ? `Improving to ${vis3h.toFixed(1)} km within 3 h` : vis3h < visNow ? `Dropping to ${vis3h.toFixed(1)} km within 3 h` : 'Holding steady over the next 3 h') : 'Live from forecast model' },
           ].map(t => (
             <div key={t.label} className="weather-tile">
               <div style={{ color:'var(--text-3)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.12em' }}>{t.label}</div>
@@ -108,9 +132,13 @@ export default function WindAlertScreen() {
           <div className="weather-tile">
             <div style={{ color:'var(--text-3)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.12em' }}>Pressure trend</div>
             <div style={{ display:'flex', alignItems:'baseline', gap:8 }}>
-              <span className="mono" style={{ fontSize:28, color:'var(--danger)' }}>↓ 4.2</span><span style={{ color:'var(--text-3)' }}>hPa/h</span>
+              <span className="mono" style={{ fontSize:28, color: trendDown ? 'var(--danger)' : 'var(--ok)' }}>
+                {pressureTrend > 0 ? '↑' : pressureTrend < 0 ? '↓' : '→'} {Math.abs(pressureTrend).toFixed(1)}
+              </span><span style={{ color:'var(--text-3)' }}>hPa/h</span>
             </div>
-            <div style={{ fontSize:12, color:'var(--text-2)' }}>Falling rapidly — typical pre-storm signature</div>
+            <div style={{ fontSize:12, color:'var(--text-2)' }}>
+              {trendDown ? 'Falling — watch for destabilising conditions' : pressureTrend > 0.5 ? 'Rising — conditions stabilising' : 'Steady over the next 3 hours'}
+            </div>
           </div>
         </div>
       </div>
