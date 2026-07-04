@@ -5,6 +5,7 @@ import { useWeather } from '../hooks/useWeather';
 import { weatherCodeInfo } from '../lib/weather';
 import { Icon } from '../components/Icon';
 import { MissionMap } from '../components/MissionMap';
+import { RiskPanel } from '../components/RiskPanel';
 
 const fleet = [
   { cs:'AERO-07', role:'Atmospheric survey', model:'Skyhawk X4', battery:78, alt:124, spd:14.2, status:'IN-FLIGHT' },
@@ -50,7 +51,7 @@ export default function Dashboard() {
   const [pickedCs, setPickedCs] = useState('AERO-07');
   const [layers, setLayers] = useState({ geofence:true, weather:true, path:true, labels:true });
   const toggleLayer = (k: string) => setLayers(s => ({ ...s, [k]: !(s as any)[k] }));
-  const [open, setOpen] = useState({ conditions:true, forecast:true, fleet:true, map:true, flow:true });
+  const [open, setOpen] = useState({ conditions:true, risk:true, forecast:true, fleet:true, map:true, flow:true });
   const tog = (k: keyof typeof open) => setOpen(o => ({ ...o, [k]: !o[k] }));
   const [stepDone, setStepDone] = useState({ plan:false, preflight:false, launch:false });
   const fmt = (n: number, d = 1) => Number(n).toFixed(d);
@@ -138,6 +139,12 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
+      </Section>
+
+      <Section id="risk" title="Flight-risk analysis" sub="Deterministic go/no-go index computed from the live feed — every point is traceable to a reading." open={open.risk} onToggle={() => tog('risk')}>
+        {wx
+          ? <RiskPanel wx={wx}/>
+          : <div style={{ padding: 24, color: 'var(--text-3)', fontSize: 13 }}>Waiting for live weather…</div>}
       </Section>
 
       <Section id="flow" title="What to do next" sub="A simple 3-step path from arming the aircraft to takeoff." open={open.flow} onToggle={() => tog('flow')}>
