@@ -9,6 +9,7 @@ import './styles/theme-dark.css';
 import './styles/responsive.css';
 import './styles/palette.css';
 import './styles/risk.css';
+import './styles/copilot.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

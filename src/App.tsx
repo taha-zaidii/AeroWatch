@@ -6,6 +6,7 @@ import { useKeyboardNav, useTelemetrySimulation, useTheme } from './hooks/useSys
 import { useLiveWeatherBridge } from './hooks/useWeather';
 import { Sidebar, Topbar, Toasts } from './components/Shell';
 import { CommandPalette } from './components/CommandPalette';
+import { Copilot } from './components/Copilot';
 
 import LoginScreen from './screens/Login';
 const Dashboard       = lazy(() => import('./screens/Dashboard'));
@@ -104,6 +105,7 @@ function AppShell() {
         </main>
       </div>
       <CommandPalette/>
+      <Copilot/>
       <Toasts/>
     </div>
   );
