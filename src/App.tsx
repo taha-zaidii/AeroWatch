@@ -5,6 +5,7 @@ import { useAppStore } from './store/app';
 import { useKeyboardNav, useTelemetrySimulation, useTheme } from './hooks/useSystemEffects';
 import { useLiveWeatherBridge } from './hooks/useWeather';
 import { Sidebar, Topbar, Toasts } from './components/Shell';
+import { CommandPalette } from './components/CommandPalette';
 
 import LoginScreen from './screens/Login';
 const Dashboard       = lazy(() => import('./screens/Dashboard'));
@@ -102,6 +103,7 @@ function AppShell() {
           </Suspense>
         </main>
       </div>
+      <CommandPalette/>
       <Toasts/>
     </div>
   );

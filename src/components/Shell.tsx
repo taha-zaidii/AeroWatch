@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp, PAGES } from '../store/app';
 import { Icon } from './Icon';
+import { usePalette } from './CommandPalette';
 
 /** Current page id derived from the URL path. */
 export function usePageId(): string {
@@ -114,11 +115,11 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
           <Icon name="chevronRight" size={12}/>
           <span className="here">{here?.label || ''}</span>
         </div>
-        <div className="topbar-search">
+        <button className="topbar-search" onClick={() => usePalette.getState().setOpen(true)} aria-label="Open command palette">
           <Icon name="search" size={14}/>
-          <input placeholder="Search location, mission, alerts…"/>
+          <span className="topbar-search-ph">Search screens or fly to any city…</span>
           <span className="kbd">⌘K</span>
-        </div>
+        </button>
       </div>
       <div className="topbar-right">
         <div className="pill mono"><span className="dot ok"/>LIVE · {telemetry.callsign}</div>

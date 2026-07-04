@@ -7,6 +7,7 @@ import './styles/animations.css';
 import './styles/weather.css';
 import './styles/theme-dark.css';
 import './styles/responsive.css';
+import './styles/palette.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
