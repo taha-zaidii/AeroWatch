@@ -77,7 +77,7 @@ export function weatherCodeInfo(code: number): { label: string; sky: 'sun' | 'pa
   if (code >= 71 && code <= 77) return { label: 'Snow', sky: 'snow' };
   if (code >= 80 && code <= 82) return { label: 'Rain showers', sky: 'rain' };
   if (code === 85 || code === 86) return { label: 'Snow showers', sky: 'snow' };
-  if (code >= 95) return { label: 'Thunderstorm', sky: 'storm' };
+  if (code >= 95 && code <= 99) return { label: 'Thunderstorm', sky: 'storm' };
   return { label: 'Unknown', sky: 'partly' };
 }
 
